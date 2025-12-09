@@ -18,6 +18,29 @@ const createClient = async (data) => {
     }
 }
 
+
+const loginClient = async(data) =>{
+    try {
+        const {email, password} = data
+        const mysql = `SELECT * FROM Cliente WHERE email=? AND password=?`;
+        const values = [email, password]
+        const [result, fields] = await connection.execute(mysql, values);
+
+        if(!result[0]){
+            throw Error('No se encontro el usuario')
+        }
+
+        return result
+
+    } catch (error) {
+        console.log(`Error inesperado: ${error.message}`)
+    }
+}
+
 module.exports = {
-    createClient
+    createClient,
+    loginClient
 };
+
+
+

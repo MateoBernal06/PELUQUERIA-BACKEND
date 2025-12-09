@@ -1,5 +1,5 @@
 
-const {createClient} = require('../model/cliente.model.js')
+const {createClient, loginClient} = require('../model/cliente.model.js')
 
 const registro = async(req, res) => {
     try {
@@ -29,6 +29,13 @@ const registro = async(req, res) => {
             });
         }
 
+        if (data.password.length < 8) {
+            res.status(400).json({
+                status: true,
+                msg: "La contraseña debe contener minimo 8 digitos",
+            });
+        }
+
         await createClient(data)
         res.status(200).json({
             status : true,
@@ -43,6 +50,50 @@ const registro = async(req, res) => {
     }
 }
 
+
+const login = async(req, res) => {
+    try {
+        const {email, password}=req.body
+
+        const data = {
+            email : email.trim(),
+            password : password.trim()
+        }
+
+        if(!data.email || !data.password){
+            res.status(400)
+                .json({
+                    status : true,
+                    msg : 'Todos los campos son obligatorios'
+                })
+        }
+
+        const result = await loginClient(data)
+        console.log(result)
+
+        if(!result){
+            res.status(400)
+                .json({
+                    status : false,
+                    msg : 'Datos incorrectos'
+                })
+        }
+
+        res.status(200)
+            .json({
+                status : true,
+                result
+            })
+        
+    } catch (error) {
+        res.status(404).json({
+            status: false,
+            msg: `Se produjo un error: ${error.message}`,
+        });
+    }
+}
+
 module.exports = {
-    registro
+    registro,
+    login
 }
