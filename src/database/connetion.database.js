@@ -6,7 +6,7 @@ const connection = mysql.createPool({
     host: "localhost",
     user: "root",
     database: "Peluqueria",
-    password: "123456",
+    password: "123456"
 });
 
 connection.getConnection()

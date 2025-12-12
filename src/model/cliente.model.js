@@ -1,45 +1,74 @@
-const connection = require("../config/database.js");
+const { text } = require("express");
+const connection = require("../database/connetion.database.js");
 require('colors')
+const bcrypt = require('bcrypt')
 
 const createClient = async (data) => {
     try {
-        const {nombres, apellidos, celular, email, password} = data
-        const mysql =
-            `INSERT INTO Cliente (nombres, apellidos, celular, email, password) 
-            values(?, ?, ?, ?, ?)`;
+        //1. Descestructuracion de datos
+        const { name_client, surname_client, phone, email, password } = data;
+    
+        // 2. Creacion de query
+        //? Consultas parametrisadas con el fin de evitar inyecciones SQL
+        const query = {
+            text: `
+                    INSERT INTO Cliente (name_client, surname_client, phone, email, password)
+                    VALUES (?, ?, ?, ?, ?)
+                `,
+            values: [name_client, surname_client, phone, email, password],
+        };
+    
+        const [result, fields] = await connection.execute(
+            query.text,
+            query.values
+        );
+        return result
         
-        const values = [nombres, apellidos, celular, email, password];
-        const [result, fields] = await connection.execute(mysql, values);
-        console.log(result)
-        console.log(fields)
-
     } catch (error) {
         console.log(`Error inesperado: ${error.message}`);
     }
 }
 
-
-const loginClient = async(data) =>{
+const findClient = async(data) =>{
     try {
-        const {email, password} = data
-        const mysql = `SELECT * FROM Cliente WHERE email=? AND password=?`;
-        const values = [email, password]
-        const [result, fields] = await connection.execute(mysql, values);
-
-        if(!result[0]){
-            throw Error('No se encontro el usuario')
+        const email = data
+        const query = {
+            text: `
+                SELECT * FROM Cliente WHERE email=?
+            `,
+            values: [email]
         }
-
-        return result
+        
+        const [result, fields] = await connection.execute(query.text, query.values);
+        return result[0]
 
     } catch (error) {
         console.log(`Error inesperado: ${error.message}`)
     }
 }
 
+
+const findPhone = async (data) => {
+    try {
+        const phone = data;
+        const query = {
+        text: `
+                    SELECT * FROM Cliente WHERE phone=?
+                `,
+        values: [phone],
+        };
+
+        const [result, fields] = await connection.execute(query.text, query.values);
+        return result[0];
+    } catch (error) {
+        console.log(`Error inesperado: ${error.message}`);
+    }
+};
+
 module.exports = {
     createClient,
-    loginClient
+    findClient,
+    findPhone
 };
 
 

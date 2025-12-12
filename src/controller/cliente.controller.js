@@ -1,58 +1,85 @@
 
-const {createClient, loginClient} = require('../model/cliente.model.js')
+const {createClient, findClient, findPhone} = require('../model/cliente.model.js')
+const bcrypt = require('bcrypt')
+const salt = 12
 
 const registro = async(req, res) => {
     try {
-        const { nombres, apellidos, celular, email, password } = req.body;
-        
+        const { name_client, surname_client, phone, email, password } = req.body;
+
+        //const hash = await bcrypt.hash(password, salt)
+
         const data = {
-            nombres: nombres.trim(),
-            apellidos: apellidos.trim(),
-            celular: celular.trim(),
+            name_client: name_client.trim(),
+            surname_client: surname_client.trim(),
+            phone: phone.trim(),
             email: email.trim(),
-            password: password.trim(),
+            password: password.trim()
         };
 
-        if(!data.nombres || !data.apellidos || !data.celular || !data.email ||!data.password){
-            res
+        if(!data.name_client || !data.surname_client || !data.phone || !data.email ||!data.password){
+            return res
                 .status(400)
                 .json({
-                    status : true,
+                    status : false,
                     msg : `Todos los campos son obligatorios`
                 })
         }
 
-        if(data.celular.length < 10){
-            res.status(400).json({
-                status: true,
+        const checkEmail = await findClient(data.email)
+        if(checkEmail){
+            return res
+                .status(400)
+                .json({
+                    status: false,
+                    msg: 'El correo ya se encuentra registrado'
+                })
+        }
+
+        const checkPhone = await findPhone(data.phone)
+        if (checkPhone) {
+            return res.status(400).json({
+                status: false,
+                msg: "El numero de celular ya se encuentra registrado",
+            });
+        }
+
+
+        if(data.phone.length < 10){
+            return res.status(400).json({
+                status: false,
                 msg: `El numero celular debe tener 10 digitos`,
             });
         }
 
         if (data.password.length < 8) {
-            res.status(400).json({
-                status: true,
+            return res.status(400).json({
+                status: false,
                 msg: "La contraseña debe contener minimo 8 digitos",
             });
         }
 
-        await createClient(data)
+        const result = await createClient(data)
+        if(result){
+            console.log(result)
+        }
+        /*data.password = hash*/
         res.status(200).json({
             status : true,
             msg : `Usuario registrado exitosamente`
         })
 
     } catch (error) {
-        res.status(404).json({
+        res.status(500).json({
             status: false,
-            msg: `Se produjo un error: ${error.message}`
+            msg: `Server Error`
         });
     }
 }
 
 
-const login = async(req, res) => {
-    try {
+const loginClient = async(req, res) => {
+    /*try {
         const {email, password}=req.body
 
         const data = {
@@ -68,13 +95,12 @@ const login = async(req, res) => {
                 })
         }
 
-        const result = await loginClient(data)
-        console.log(result)
+        //const result = await loginClient(data)
 
         if(!result){
             res.status(400)
                 .json({
-                    status : false,
+                    status : true,
                     msg : 'Datos incorrectos'
                 })
         }
@@ -86,14 +112,14 @@ const login = async(req, res) => {
             })
         
     } catch (error) {
-        res.status(404).json({
+        res.status(500).json({
             status: false,
-            msg: `Se produjo un error: ${error.message}`,
+            msg: `Server Error`,
         });
-    }
+    }*/
 }
 
 module.exports = {
     registro,
-    login
+    loginClient
 }
