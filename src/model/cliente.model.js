@@ -32,14 +32,13 @@ const login = async(data) => {
         const verificate = await bcrypt.compare(password, result[0].password);
         
         if(verificate){
-            const { id_client, name_client, surname_client, phone, email, date_register} = result[0];
+            const { id_client, name_client, surname_client, phone, email } = result[0];
             const data = {
                 id_client,
                 name_client,
                 surname_client,
                 phone,
-                email,
-                date_register,
+                email
             };
             return data
         }

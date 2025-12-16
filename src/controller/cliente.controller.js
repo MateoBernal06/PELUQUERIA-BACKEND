@@ -1,5 +1,7 @@
 const {createClient, findClient,findPhone, login} = require("../model/cliente.model.js");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
 
 const registro = async (req, res) => {
     try {
@@ -88,20 +90,37 @@ const loginClient = async (req, res) => {
                 })
         }
 
+        const checkEmail = await findClient(data.email);
+        if (!checkEmail) {
+            return res.status(400).json({
+                ok: false,
+                msg: "El correo no esta registrado",
+            });
+        }
+
         const result = await login(data)
 
         if(!result){
-            res.status(400)
+            return res.status(400)
                 .json({
                     ok: false,
                     msg: 'Datos incorrectos'
                 })
         }
 
+        const token = jwt.sign({ id_client: result.id_client },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "1h",
+            }
+        );
+
+
         res.status(200)
             .json({
                 ok : true,
-                result
+                msg: token,
+                data : result,
             })
         
     } catch (error) {
