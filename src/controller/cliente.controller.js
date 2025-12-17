@@ -1,4 +1,4 @@
-const {createClient, findClient,findPhone, login} = require("../model/cliente.model.js");
+const {createClient, findClient,findPhone, login, profile} = require("../model/cliente.model.js");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
@@ -131,7 +131,32 @@ const loginClient = async (req, res) => {
     }
 };
 
+const profileClient = async(req, res) =>{
+    try {
+        const id_client = req.id_client;
+
+        if(!id_client){
+            return res.status(400).json({
+                ok: false
+            })
+        }
+            
+        const result = await profile(id_client)
+        return res.status(200).json({
+            ok: true,
+            result
+        })
+        
+    } catch (error) {
+        res.status(500).json({
+            ok: false,
+            msg: 'Server Error'
+        })
+    }
+}
+
 module.exports = {
     registro,
     loginClient,
+    profileClient
 };

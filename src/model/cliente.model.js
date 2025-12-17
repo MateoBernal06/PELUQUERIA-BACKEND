@@ -77,11 +77,27 @@ const findPhone = async (data) => {
     }
 };
 
+
+const profile = async(data) => {
+    try {
+        const id_client = data
+        const mysql ="SELECT name_client ,surname_client ,phone ,email from Cliente WHERE id_client=?";
+        const values = [id_client] 
+        const [result, fields] = await connection.execute(mysql, values)
+        return result[0]
+
+    } catch (error) {
+        console.log(`Error inesperado: ${error.message}`);
+    }
+}
+
+
 module.exports = {
     createClient,
     findClient,
     findPhone,
-    login
+    login,
+    profile
 };
 
 
