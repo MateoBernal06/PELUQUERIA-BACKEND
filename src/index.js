@@ -1,6 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
 const cliente = require('./routes/cliente.routes')
+const peluquero = require('./routes/peluquero.routes.js')
 require('dotenv').config()
 
 const app = express()
@@ -15,6 +16,7 @@ app.get('/', (req, res)=>{
 })
 
 app.use('/api/v1', cliente)
+app.use('/api/v1', peluquero)
 
 app.use((req, res, next)=>{
     res.status(404).send('Not Found 404')

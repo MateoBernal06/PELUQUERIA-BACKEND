@@ -10,8 +10,7 @@ const registro = async (req, res) => {
         // permite general palabras aleatorias que se colocaran en el hash, evitando que el hash 
         // se repita en el caso de que varios usuarios posean la misma contraseña
         const salt = await bcrypt.genSalt(10)
-        const hash = await bcrypt.hash(password, salt)
-
+        
         const data = {
             name_client: name_client.trim(),
             surname_client: surname_client.trim(),
@@ -19,13 +18,15 @@ const registro = async (req, res) => {
             email: email.trim(),
             password: password.trim(),
         };
-
+        
         if (!data.name_client || !data.surname_client || !data.phone || !data.email || !data.password) {
             return res.status(400).json({
                 ok: false,
                 msg: `Todos los campos son obligatorios`,
             });
         }
+        
+        const hash = await bcrypt.hash(data.password, salt)
 
         const checkEmail = await findClient(data.email);
         if (checkEmail) {
@@ -50,7 +51,7 @@ const registro = async (req, res) => {
             });
         }
 
-        if (data.password.length<8 || data.password.length>15) {
+        if (data.password.length<=8 || data.password.length>=15) {
             return res.status(400).json({
                 ok: false,
                 msg: "La contraseña debe contener de 8 a 15 caracteres",

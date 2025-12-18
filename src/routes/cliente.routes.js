@@ -5,7 +5,7 @@ const express = require('express')
 const route = express()
 
 route.post('/registro', registro)
-route.post('/login', loginClient)
+route.post('/login-cliente', loginClient)
 route.get('/perfil', verificateUser, profileClient)
 
 module.exports = route
